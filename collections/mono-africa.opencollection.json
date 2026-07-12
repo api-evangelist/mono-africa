@@ -1,0 +1,218 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mono API",
+    "version": "2.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "apikey": {
+        "in": "header",
+        "key": "mono-sec-key",
+        "value": "{{monoSecKey}}"
+      }
+    }
+  },
+  "items": [
+    {
+      "info": { "name": "Connect", "type": "folder" },
+      "items": [
+        {
+          "info": { "name": "Initiate account linking", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/accounts/initiate",
+            "body": { "type": "json", "data": "{\n  \"customer\": { \"name\": \"Samuel Olamide\", \"email\": \"samuel@example.com\" },\n  \"scope\": \"auth\",\n  \"redirect_url\": \"https://example.com/callback\"\n}" }
+          },
+          "docs": "Starts an account-linking session for the Mono Connect widget."
+        },
+        {
+          "info": { "name": "Exchange token", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/accounts/auth",
+            "body": { "type": "json", "data": "{\n  \"code\": \"code_xxx\"\n}" }
+          },
+          "docs": "Exchanges the widget authorization code for a permanent account id."
+        }
+      ]
+    },
+    {
+      "info": { "name": "Financial Data", "type": "folder" },
+      "items": [
+        {
+          "info": { "name": "Get accounts", "type": "http" },
+          "http": { "method": "GET", "url": "https://api.withmono.com/v2/accounts" },
+          "docs": "Retrieves the linked accounts associated with your application."
+        },
+        {
+          "info": { "name": "Account details", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id",
+            "params": [{ "name": "id", "value": "", "type": "path", "description": "The permanent account id." }]
+          },
+          "docs": "Retrieves the details and metadata of a single linked account."
+        },
+        {
+          "info": { "name": "Transactions", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/transactions",
+            "params": [{ "name": "id", "value": "", "type": "path", "description": "The permanent account id." }]
+          },
+          "docs": "Retrieves transactions on a linked account. Supports date filtering and the x-real-time header."
+        },
+        {
+          "info": { "name": "Identity", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/identity",
+            "params": [{ "name": "id", "value": "", "type": "path", "description": "The permanent account id." }]
+          },
+          "docs": "Retrieves KYC identity information tied to a linked account."
+        },
+        {
+          "info": { "name": "Account balance", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/balance",
+            "params": [{ "name": "id", "value": "", "type": "path", "description": "The permanent account id." }]
+          },
+          "docs": "Retrieves the real-time balance of a linked account."
+        },
+        {
+          "info": { "name": "Income", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/income",
+            "params": [{ "name": "id", "value": "", "type": "path", "description": "The permanent account id." }]
+          },
+          "docs": "Retrieves income analysis for a linked account."
+        },
+        {
+          "info": { "name": "Bank statement", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/statement?period=last6months&output=json",
+            "params": [
+              { "name": "id", "value": "", "type": "path", "description": "The permanent account id." },
+              { "name": "period", "value": "last6months", "type": "query", "description": "Statement period." },
+              { "name": "output", "value": "json", "type": "query", "description": "json or pdf." }
+            ]
+          },
+          "docs": "Retrieves a bank statement (JSON or PDF) for a linked account."
+        },
+        {
+          "info": { "name": "Unlink account", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/accounts/:id/unlink",
+            "params": [{ "name": "id", "value": "", "type": "path", "description": "The permanent account id." }]
+          },
+          "docs": "Unlinks a previously linked account, revoking further data access."
+        }
+      ]
+    },
+    {
+      "info": { "name": "Investment", "type": "folder" },
+      "items": [
+        {
+          "info": { "name": "Assets", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/assets",
+            "params": [{ "name": "id", "value": "", "type": "path", "description": "The permanent account id." }]
+          },
+          "docs": "Retrieves investment assets/holdings for a linked account."
+        },
+        {
+          "info": { "name": "Earnings", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/earnings",
+            "params": [{ "name": "id", "value": "", "type": "path", "description": "The permanent account id." }]
+          },
+          "docs": "Retrieves investment earnings/returns for a linked account."
+        }
+      ]
+    },
+    {
+      "info": { "name": "Creditworthiness", "type": "folder" },
+      "items": [
+        {
+          "info": { "name": "Creditworthiness", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/accounts/:id/creditworthiness",
+            "params": [{ "name": "id", "value": "", "type": "path", "description": "The permanent account id." }],
+            "body": { "type": "json", "data": "{\n  \"principal\": 500000,\n  \"interest_rate\": 5,\n  \"term\": 12,\n  \"run_credit_check\": true\n}" }
+          },
+          "docs": "Assesses a customer's repayment capacity from their linked-account history."
+        }
+      ]
+    },
+    {
+      "info": { "name": "DirectPay", "type": "folder" },
+      "items": [
+        {
+          "info": { "name": "Initiate payment", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/payments/initiate",
+            "body": { "type": "json", "data": "{\n  \"amount\": 20000,\n  \"type\": \"onetime-debit\",\n  \"method\": \"account\",\n  \"description\": \"Wallet top-up\",\n  \"reference\": \"unique-ref-001\",\n  \"redirect_url\": \"https://example.com/callback\",\n  \"customer\": { \"email\": \"samuel@example.com\", \"phone\": \"08000000000\", \"name\": \"Samuel Olamide\" }\n}" }
+          },
+          "docs": "Initiates a one-time DirectPay debit; returns a widget URL to complete the bank payment."
+        },
+        {
+          "info": { "name": "Verify payment status", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/payments/verify/:reference",
+            "params": [{ "name": "reference", "value": "", "type": "path", "description": "The unique payment reference." }]
+          },
+          "docs": "Verifies the status of a DirectPay payment by its reference."
+        },
+        {
+          "info": { "name": "Fetch all payments", "type": "http" },
+          "http": { "method": "GET", "url": "https://api.withmono.com/v2/payments" },
+          "docs": "Retrieves all DirectPay payments for your application."
+        }
+      ]
+    },
+    {
+      "info": { "name": "Lookup", "type": "folder" },
+      "items": [
+        {
+          "info": { "name": "Initiate BVN lookup", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/lookup/bvn/initiate",
+            "body": { "type": "json", "data": "{\n  \"bvn\": \"22110011001\",\n  \"scope\": \"identity\"\n}" }
+          },
+          "docs": "Initiates a consent-based BVN verification. Modeled sub-path - confirm against the live reference."
+        },
+        {
+          "info": { "name": "Account-number lookup", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v3/lookup/account-number",
+            "body": { "type": "json", "data": "{\n  \"nip_code\": \"000014\",\n  \"account_number\": \"0123456789\"\n}" }
+          },
+          "docs": "Verifies ownership of a bank account by account number and bank code. Served under /v3/lookup."
+        },
+        {
+          "info": { "name": "Mashup lookup", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v3/lookup/mashup",
+            "body": { "type": "json", "data": "{}" }
+          },
+          "docs": "Cross-checks submitted identity against multiple sources. Served under /v3/lookup."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

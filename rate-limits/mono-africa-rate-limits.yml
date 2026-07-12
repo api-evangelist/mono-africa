@@ -1,0 +1,60 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Mono
+providerId: mono-africa
+created: '2026-07-12'
+modified: '2026-07-12'
+reconciled: false
+tags:
+- Open Banking
+- Financial Data
+- Payments
+- Rate Limiting
+- Quotas
+description: >-
+  Mono does not publish a single fixed numeric rate-limit table for its public
+  APIs. In practice, throughput is governed by your application's tier and
+  agreement, and some data endpoints are constrained by upstream bank/institution
+  availability rather than by a Mono per-minute cap. Real-time data reads (for
+  example transactions with the `x-real-time` header) are slower and more tightly
+  bounded than cached reads because they hit the institution directly. Clients
+  should handle HTTP 429 responses with exponential backoff.
+notes: >-
+  No documented per-account or per-endpoint numeric request-rate limits were
+  found as of the review date. Confirm any account-specific limits with Mono
+  during reconciliation. Data availability per account is also gated by the
+  `data_status` field, which should be checked before calling financial-data
+  endpoints.
+sources:
+- https://docs.mono.co/docs/quickstart
+- https://docs.mono.co/docs/financial-data/overview
+- https://docs.mono.co/api/bank-data/transactions
+responseCodes:
+  throttled: 429
+limits:
+- name: API Requests
+  scope: application
+  metric: requests
+  limit: not published
+  notes: No fixed numeric request-rate limit is documented; governed by tier/agreement.
+- name: Real-Time Data Reads
+  scope: account
+  metric: requests
+  limit: institution-bound
+  notes: Real-time reads (x-real-time header) are bounded by upstream bank availability and latency.
+- name: DirectPay Collections
+  scope: application
+  metric: transactions
+  limit: not published
+  notes: Payment throughput governed by account/agreement and bank rails, not a documented cap.
+policies:
+- name: Backoff Strategy
+  description: Implement exponential backoff with jitter on HTTP 429 and honor any Retry-After header.
+- name: Data Status Gate
+  description: Check the account `data_status` field before calling financial-data endpoints; data may still be syncing.
+- name: Webhooks Over Polling
+  description: Prefer webhook events (account updates, payment status) over tight polling loops to reduce request volume.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

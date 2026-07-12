@@ -1,0 +1,20 @@
+generated: '2026-07-12'
+method: derived
+source: openapi/mono-africa-openapi.yml
+summary:
+  types:
+  - apiKey
+schemes:
+- name: monoSecKey
+  type: apiKey
+  in: header
+  keyName: mono-sec-key
+  description: >-
+    Secret key for the Mono application, obtained self-serve from the Mono
+    dashboard. Sent on every server-to-server request in the `mono-sec-key`
+    header. Applications have separate test and live secret keys; use test keys
+    against the sandbox and live keys in production. The public key is used only
+    by the front-end Connect / DirectPay widgets, never for server API calls.
+  sources:
+  - openapi/mono-africa-openapi.yml
+  - https://docs.mono.co/docs/quickstart

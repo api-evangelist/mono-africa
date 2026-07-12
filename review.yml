@@ -1,0 +1,116 @@
+aid: mono-africa
+name: Mono
+review:
+  question: Does Mono expose a documented public WebSocket API?
+  answer: false
+  date: '2026-07-12'
+  reviewer: API Evangelist
+  asyncapiSpecCreated: false
+  asyncapiScopeNote: |
+    No AsyncAPI document was authored. Mono's public developer surface is
+    request/response REST over HTTPS (base host https://api.withmono.com, most
+    endpoints under /v2). Asynchronous delivery exists only as outbound
+    webhooks - Mono POSTs events (account linked/updated, data sync ready,
+    DirectPay payment status) to a URL you configure - which is server-to-your-
+    endpoint HTTP, not a WebSocket or SSE stream Mono hosts. There is no
+    server-push transport on Mono's own API to model, so no AsyncAPI spec was
+    created.
+findings:
+  summary: |
+    Mono does not publish a documented public WebSocket API. Mono is an open
+    banking / financial-data and payments platform for Africa. Its public API is
+    REST over HTTPS at https://api.withmono.com (most endpoints under /v2; the
+    account-number and Mashup Lookup endpoints are under /v3), authenticated
+    with a secret key sent in the `mono-sec-key` header. Account linking is
+    completed by the customer in the hosted Mono Connect widget, which returns an
+    authorization code exchanged (POST /v2/accounts/auth) for a permanent account
+    id. Real-time and asynchronous behavior is delivered through the hosted
+    widgets and outbound webhooks, not through a WebSocket. No realtime,
+    bidirectional, or streaming WebSocket (ws:// or wss://) endpoint is
+    documented anywhere in Mono's API reference as of the review date.
+  accessModel: |
+    Self-serve. Developers sign up on the Mono dashboard, create an application,
+    and receive test and live public/secret key pairs. The public key is used by
+    the front-end Connect/DirectPay widgets; the secret key authenticates
+    server-to-server calls via the mono-sec-key header. Building against the
+    sandbox with test keys is free; going live requires business/KYC onboarding.
+    Mono was acquired by Flutterwave in January 2026.
+  transports:
+    - protocol: REST
+      scheme: https
+      baseURL: https://api.withmono.com
+      documented: true
+      note: Most endpoints under /v2; account-number and Mashup Lookup under /v3.
+    - protocol: Webhook
+      scheme: https
+      documented: true
+      note: Mono POSTs events (account/data-status and DirectPay payment updates) to a configured URL. Server-to-endpoint HTTP, not WebSocket.
+    - protocol: WebSocket
+      scheme: wss
+      documented: false
+      note: No WebSocket endpoint is documented in Mono's API reference (Financial Data, DirectPay, or Lookup) as of the review date.
+  endpointsConfirmed:
+    - POST https://api.withmono.com/v2/accounts/initiate
+    - POST https://api.withmono.com/v2/accounts/auth
+    - GET  https://api.withmono.com/v2/accounts
+    - GET  https://api.withmono.com/v2/accounts/{id}
+    - GET  https://api.withmono.com/v2/accounts/{id}/transactions
+    - GET  https://api.withmono.com/v2/accounts/{id}/identity
+    - GET  https://api.withmono.com/v2/accounts/{id}/balance
+    - GET  https://api.withmono.com/v2/accounts/{id}/income
+    - GET  https://api.withmono.com/v2/accounts/{id}/statement
+    - GET  https://api.withmono.com/v2/accounts/{id}/assets
+    - GET  https://api.withmono.com/v2/accounts/{id}/earnings
+    - POST https://api.withmono.com/v2/accounts/{id}/creditworthiness
+    - POST https://api.withmono.com/v2/accounts/{id}/unlink
+    - POST https://api.withmono.com/v2/payments/initiate
+    - GET  https://api.withmono.com/v2/payments/verify/{reference}
+    - GET  https://api.withmono.com/v2/payments
+    - POST https://api.withmono.com/v3/lookup/account-number
+    - POST https://api.withmono.com/v3/lookup/mashup
+  endpointsModeled:
+    - note: >-
+        The exact BVN lookup sub-path is modeled as
+        POST /v2/lookup/bvn/initiate. The BVN Lookup is confirmed to live under
+        the /v2/lookup/bvn path (consent-based), but the precise initiate/verify
+        sub-path and body were not fully confirmed from the public pages and
+        should be reconciled against the live reference.
+    - note: >-
+        Account re-authorisation is confirmed as a documented capability but its
+        exact path/body were not confirmed; it was therefore omitted from the
+        OpenAPI rather than guessed.
+    - note: >-
+        All request/response JSON schemas in the OpenAPI are representative
+        models, not copied from a machine-readable Mono spec (Mono does not
+        publish an OpenAPI/Postman file publicly that was located). Field-level
+        shapes should be verified against docs.mono.co before production use.
+sources:
+  - url: https://docs.mono.co/docs/quickstart
+    type: Documentation
+    note: Base host https://api.withmono.com/v2 and mono-sec-key header; test vs live keys from the dashboard.
+  - url: https://docs.mono.co/docs/financial-data/overview
+    type: Documentation
+    note: Connect account-linking overview; account id from exchange-token used for all data calls; data_status gate.
+  - url: https://docs.mono.co/api/bank-data/transactions
+    type: APIReference
+    note: GET /v2/accounts/{id}/transactions and sibling account/statement/investment endpoints; x-real-time header.
+  - url: https://docs.mono.co/api/directpay/initiate
+    type: APIReference
+    note: POST /v2/payments/initiate with amount/type/method/reference/customer; verify before giving value.
+  - url: https://docs.mono.co/api/directpay/verify
+    type: APIReference
+    note: GET /v2/payments/verify/{reference} returns payment status and customer info.
+  - url: https://docs.mono.co/docs/lookup/overview
+    type: Documentation
+    note: Lookup services (BVN, NIN, CAC, account-number, Mashup); account-number and Mashup under /v3/lookup.
+  - url: https://docs.mono.co/docs/payments/webhook
+    type: Documentation
+    note: Webhook events for account and DirectPay status; outbound HTTP POST, not WebSocket.
+actions:
+  asyncapiPath: null
+  apisYmlUpdated: true
+  reason: |
+    No WebSocket protocol surface exists. Mono's public API is request/response
+    REST plus outbound webhooks. No AsyncAPI document was created because there
+    is no Mono-hosted server-push transport (WebSocket or SSE) to model; webhook
+    delivery is server-to-your-endpoint HTTP.

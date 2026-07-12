@@ -1,0 +1,123 @@
+specification: API Commons Plans
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
+provider: Mono
+providerId: mono-africa
+created: '2026-07-12'
+modified: '2026-07-12'
+reconciled: false
+tags:
+- Open Banking
+- Financial Data
+- Payments
+- Fintech
+- Plans
+description: >-
+  Mono is a commercial, self-serve platform. Developers sign up, create an
+  application, and get test keys to build against the sandbox for free; going
+  live requires business/KYC onboarding and usage is then billed. Pricing is
+  primarily consumption-based - a fee per linked account and/or per successful
+  data call for Financial Data, a percentage/flat fee per successful DirectPay
+  collection, and a per-verification fee for Lookup services - with custom
+  enterprise agreements for high volume. Exact published rates are not
+  reconciled here and vary by product, market, and negotiated contract.
+notes: >-
+  Mono does not publish a simple fixed price list for all products on a single
+  page; rates are quoted per product and often per contract. Verify current
+  pricing with Mono (sales@mono.co / dashboard) during reconciliation. Mono was
+  acquired by Flutterwave in January 2026, which may affect commercial terms.
+sources:
+- https://mono.co/
+- https://docs.mono.co/docs/quickstart
+- https://mono.co/pricing
+plans:
+- id: mono-sandbox
+  name: Sandbox (Test)
+  type: free
+  description: >-
+    Free self-serve sandbox for development. Create an app in the dashboard,
+    get test public/secret keys, and exercise Connect, Financial Data,
+    DirectPay, and Lookup against simulated data before going live.
+  entries:
+  - label: Sandbox Usage
+    name: sandbox_usage
+    type: usage
+    metric: requests
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: free (test keys, simulated data)
+    userMultiplied: false
+  elements:
+  - name: Test Keys
+    description: Public and secret test keys for the sandbox environment.
+  - name: All Product APIs
+    description: Connect, Financial Data, DirectPay, and Lookup in test mode.
+- id: mono-live
+  name: Live (Usage-Based)
+  type: usage
+  description: >-
+    Production access after business/KYC onboarding. Billed on consumption -
+    per linked account and/or per successful financial-data call, per successful
+    DirectPay collection, and per Lookup verification. Exact rates are quoted per
+    product and are not reconciled here.
+  entries:
+  - label: Linked Account / Financial Data
+    name: financial_data
+    type: usage
+    metric: linked_account
+    limit: -1
+    timeFrame: month
+    geo: africa
+    unit: 1
+    price: per-linked-account / per-call (contact Mono)
+    userMultiplied: false
+  - label: DirectPay Collection
+    name: directpay
+    type: usage
+    metric: transaction
+    limit: -1
+    timeFrame: month
+    geo: africa
+    unit: 1
+    price: fee per successful collection (contact Mono)
+    userMultiplied: false
+  - label: Lookup Verification
+    name: lookup
+    type: usage
+    metric: verification
+    limit: -1
+    timeFrame: month
+    geo: africa
+    unit: 1
+    price: per-verification (contact Mono)
+    userMultiplied: false
+  elements:
+  - name: Live Keys
+    description: Production public and secret keys.
+  - name: Business Onboarding
+    description: KYC/KYB verification required before going live.
+- id: mono-enterprise
+  name: Enterprise / Custom
+  type: enterprise
+  description: >-
+    Negotiated volume pricing, dedicated support, SLAs, and custom terms for
+    high-volume or regulated customers. Contact Mono sales.
+  entries:
+  - label: Enterprise Agreement
+    name: enterprise
+    type: flat
+    metric: contract
+    limit: -1
+    timeFrame: year
+    geo: global
+    unit: 1
+    price: contact sales
+    userMultiplied: false
+  elements:
+  - name: Custom Volume Pricing
+  - name: SLAs and Support
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

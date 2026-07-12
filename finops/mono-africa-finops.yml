@@ -1,0 +1,99 @@
+specification: FinOps Framework
+specificationVersion: '1.0'
+schema: https://www.finops.org/framework/
+provider: Mono
+providerId: mono-africa
+created: '2026-07-12'
+modified: '2026-07-12'
+reconciled: false
+tags:
+- Open Banking
+- Financial Data
+- Payments
+- Fintech
+- FinOps
+- Cost Management
+- FOCUS
+description: >-
+  FinOps view of Mono spend. Mono is a usage-priced open banking platform:
+  Financial Data cost is driven by the number of linked accounts and/or
+  successful data calls (transactions, identity, income, balance, statements),
+  DirectPay cost is a fee per successful bank collection, and Lookup cost is a
+  fee per identity/account verification. Development against the sandbox with
+  test keys is free; charges begin on live keys after business onboarding.
+  Because several data reads depend on upstream institutions, cost can correlate
+  with retry/real-time behavior as well as raw call volume.
+notes: >-
+  Per-unit rates are not reconciled here - Mono quotes pricing per product and
+  often per contract. Verify current rates with Mono during reconciliation.
+  Mono was acquired by Flutterwave (Jan 2026), which may change billing entities
+  and terms.
+sources:
+- https://mono.co/
+- https://docs.mono.co/docs/quickstart
+- https://focus.finops.org/focus-specification/v1-3/
+alignedWith:
+  framework: FinOps Foundation Framework
+  frameworkUrl: https://www.finops.org/framework/
+  dataSpec: FOCUS
+  dataSpecVersion: '1.3'
+  dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
+publisherName: Mono
+serviceCategory: Financial Infrastructure and Open Banking
+billingModel:
+  pricingCategory: Usage-Based
+  billingFrequency: Monthly
+  billingCurrency: USD
+  chargeCategories:
+  - Usage
+  - Purchase
+  - Adjustment
+focusColumns:
+  ServiceName: Mono Open Banking Platform
+  ServiceCategory: Financial Infrastructure and Open Banking
+  ProviderName: Mono
+  PublisherName: Mono
+  InvoiceIssuerName: Mono
+  BillingCurrency: USD
+  ChargeCategory: Usage
+  PricingCategory: Usage-Based
+meters:
+- name: linked_accounts
+  description: Number of customer bank accounts linked and maintained via Connect.
+  unit: accounts
+  aggregation: sum
+  dimensions:
+  - application
+  - institution
+- name: financial_data_calls
+  description: Successful Financial Data reads (transactions, identity, income, balance, statements, assets).
+  unit: calls
+  aggregation: sum
+  dimensions:
+  - application
+  - product
+- name: directpay_collections
+  description: Successful DirectPay bank collections.
+  unit: transactions
+  aggregation: sum
+  dimensions:
+  - application
+- name: lookup_verifications
+  description: Identity/account verifications via the Lookup services (BVN, NIN, CAC, account-number, Mashup).
+  unit: verifications
+  aggregation: sum
+  dimensions:
+  - application
+  - lookup_type
+principles:
+- name: Visibility
+  description: Track linked-account count, data-call volume by product, DirectPay collections, and Lookup verifications per application.
+- name: Allocation
+  description: Use per-application keys and the meta field on linked accounts/payments to map spend to internal products or customer segments.
+- name: Optimization
+  description: Cache non-real-time data instead of re-reading it; reserve the x-real-time header for when freshness is required; unlink accounts you no longer need; check data_status before calling to avoid wasted retries.
+- name: Accountability
+  description: Assign owners per application/product; review monthly linked-account and verification volume against budget.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

@@ -1,0 +1,244 @@
+{
+  "info": {
+    "name": "Mono API",
+    "description": "A grounded subset of the Mono open banking API for Africa. Link customer bank accounts and read financial data, assess creditworthiness, collect direct bank payments (DirectPay), and verify identity (Lookup). Base host: https://api.withmono.com (most endpoints under /v2; account-number and Mashup Lookup under /v3). Every server-to-server request sends the secret key in the mono-sec-key header. Request/response bodies are modeled - confirm exact payloads against docs.mono.co.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://api.withmono.com", "type": "string" },
+    { "key": "monoSecKey", "value": "", "type": "string" },
+    { "key": "accountId", "value": "", "type": "string" },
+    { "key": "reference", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Connect",
+      "item": [
+        {
+          "name": "Initiate account linking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "mono-sec-key", "value": "{{monoSecKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"customer\": { \"name\": \"Samuel Olamide\", \"email\": \"samuel@example.com\" },\n  \"scope\": \"auth\",\n  \"redirect_url\": \"https://example.com/callback\",\n  \"meta\": { \"ref\": \"99008877TEST\" }\n}" },
+            "url": { "raw": "{{baseUrl}}/v2/accounts/initiate", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", "initiate"] },
+            "description": "Starts an account-linking session for the Mono Connect widget."
+          }
+        },
+        {
+          "name": "Exchange token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "mono-sec-key", "value": "{{monoSecKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"code_xxx\"\n}" },
+            "url": { "raw": "{{baseUrl}}/v2/accounts/auth", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", "auth"] },
+            "description": "Exchanges the widget authorization code for a permanent account id."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Financial Data",
+      "item": [
+        {
+          "name": "Get accounts",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts", "host": ["{{baseUrl}}"], "path": ["v2", "accounts"] },
+            "description": "Retrieves the linked accounts associated with your application."
+          }
+        },
+        {
+          "name": "Account details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id"], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Retrieves the details and metadata of a single linked account."
+          }
+        },
+        {
+          "name": "Transactions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id/transactions?paginate=false", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id", "transactions"], "query": [{ "key": "paginate", "value": "false" }], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Retrieves transactions on a linked account. Supports date filtering and the x-real-time header."
+          }
+        },
+        {
+          "name": "Identity",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id/identity", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id", "identity"], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Retrieves KYC identity information tied to a linked account."
+          }
+        },
+        {
+          "name": "Account balance",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id/balance", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id", "balance"], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Retrieves the real-time balance of a linked account."
+          }
+        },
+        {
+          "name": "Income",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id/income", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id", "income"], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Retrieves income analysis for a linked account."
+          }
+        },
+        {
+          "name": "Bank statement",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id/statement?period=last6months&output=json", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id", "statement"], "query": [{ "key": "period", "value": "last6months" }, { "key": "output", "value": "json" }], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Retrieves a bank statement (JSON or PDF) for a linked account."
+          }
+        },
+        {
+          "name": "Unlink account",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id/unlink", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id", "unlink"], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Unlinks a previously linked account, revoking further data access."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Investment",
+      "item": [
+        {
+          "name": "Assets",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id/assets", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id", "assets"], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Retrieves investment assets/holdings for a linked account."
+          }
+        },
+        {
+          "name": "Earnings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id/earnings", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id", "earnings"], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Retrieves investment earnings/returns for a linked account."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Creditworthiness",
+      "item": [
+        {
+          "name": "Creditworthiness",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "mono-sec-key", "value": "{{monoSecKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"principal\": 500000,\n  \"interest_rate\": 5,\n  \"term\": 12,\n  \"run_credit_check\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/v2/accounts/:id/creditworthiness", "host": ["{{baseUrl}}"], "path": ["v2", "accounts", ":id", "creditworthiness"], "variable": [{ "key": "id", "value": "{{accountId}}" }] },
+            "description": "Assesses a customer's repayment capacity from their linked-account history."
+          }
+        }
+      ]
+    },
+    {
+      "name": "DirectPay",
+      "item": [
+        {
+          "name": "Initiate payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "mono-sec-key", "value": "{{monoSecKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 20000,\n  \"type\": \"onetime-debit\",\n  \"method\": \"account\",\n  \"description\": \"Wallet top-up\",\n  \"reference\": \"unique-ref-001\",\n  \"redirect_url\": \"https://example.com/callback\",\n  \"customer\": { \"email\": \"samuel@example.com\", \"phone\": \"08000000000\", \"name\": \"Samuel Olamide\" }\n}" },
+            "url": { "raw": "{{baseUrl}}/v2/payments/initiate", "host": ["{{baseUrl}}"], "path": ["v2", "payments", "initiate"] },
+            "description": "Initiates a one-time DirectPay debit; returns a widget URL to complete the bank payment."
+          }
+        },
+        {
+          "name": "Verify payment status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/payments/verify/:reference", "host": ["{{baseUrl}}"], "path": ["v2", "payments", "verify", ":reference"], "variable": [{ "key": "reference", "value": "{{reference}}" }] },
+            "description": "Verifies the status of a DirectPay payment by its reference."
+          }
+        },
+        {
+          "name": "Fetch all payments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "mono-sec-key", "value": "{{monoSecKey}}" }],
+            "url": { "raw": "{{baseUrl}}/v2/payments", "host": ["{{baseUrl}}"], "path": ["v2", "payments"] },
+            "description": "Retrieves all DirectPay payments for your application."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lookup",
+      "item": [
+        {
+          "name": "Initiate BVN lookup",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "mono-sec-key", "value": "{{monoSecKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bvn\": \"22110011001\",\n  \"scope\": \"identity\"\n}" },
+            "url": { "raw": "{{baseUrl}}/v2/lookup/bvn/initiate", "host": ["{{baseUrl}}"], "path": ["v2", "lookup", "bvn", "initiate"] },
+            "description": "Initiates a consent-based BVN verification. Modeled sub-path - confirm against the live reference."
+          }
+        },
+        {
+          "name": "Account-number lookup",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "mono-sec-key", "value": "{{monoSecKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"nip_code\": \"000014\",\n  \"account_number\": \"0123456789\"\n}" },
+            "url": { "raw": "{{baseUrl}}/v3/lookup/account-number", "host": ["{{baseUrl}}"], "path": ["v3", "lookup", "account-number"] },
+            "description": "Verifies ownership of a bank account by account number and bank code. Served under /v3/lookup."
+          }
+        },
+        {
+          "name": "Mashup lookup",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "mono-sec-key", "value": "{{monoSecKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{baseUrl}}/v3/lookup/mashup", "host": ["{{baseUrl}}"], "path": ["v3", "lookup", "mashup"] },
+            "description": "Cross-checks submitted identity against multiple sources. Served under /v3/lookup."
+          }
+        }
+      ]
+    }
+  ]
+}
