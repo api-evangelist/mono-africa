@@ -171,6 +171,8 @@ apis:
     Note that account-number and Mashup lookups are served under the `/v3/lookup` path
     while BVN uses `/v2/lookup`.
 common:
+- type: AgenticAccess
+  url: agentic-access/mono-africa-agentic-access.yml
 - type: DomainSecurity
   url: security/mono-africa-domain-security.yml
 - type: Authentication
