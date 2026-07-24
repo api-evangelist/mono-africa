@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Mono Connect Creditworthiness API
+  description: 'A grounded subset of the Mono open banking API for Africa. Mono lets businesses link customer bank accounts and read financial data, assess creditworthiness, collect direct bank payments (DirectPay), and verify identity (Lookup). Server-to-server requests authenticate with a secret key sent in the `mono-sec-key` header. Account linking is completed by the customer through the hosted Mono Connect widget; the widget returns a short-lived authorization code that is exchanged for a permanent account id used on all financial-data calls.
+
+
+    Endpoint paths and methods here are grounded in the public Mono documentation at docs.mono.co (base host `https://api.withmono.com`, most endpoints under `/v2`; the account-number and Mashup Lookup endpoints are under `/v3`). Request and response bodies are modeled representatively - treat field-level schemas as illustrative and confirm exact payloads against the live reference before relying on them.'
+  version: '2.0'
+  contact:
+    name: Mono
+    url: https://mono.co
+  x-provenance: Endpoint paths/methods grounded in docs.mono.co (2026-07-12). Request/response schemas are modeled and should be reconciled against the live API reference.
+servers:
+- url: https://api.withmono.com
+  description: Mono production API host
+security:
+- monoSecKey: []
+tags:
+- name: Creditworthiness
+  description: Affordability and credit-decisioning analysis.
+paths:
+  /v2/accounts/{id}/creditworthiness:
+    parameters:
+    - $ref: '#/components/parameters/AccountId'
+    post:
+      operationId: assessCreditworthiness
+      tags:
+      - Creditworthiness
+      summary: Creditworthiness
+      description: Assesses a customer's repayment capacity from their linked-account financial history and returns an affordability/creditworthiness analysis.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditworthinessRequest'
+      responses:
+        '200':
+          description: Creditworthiness analysis.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditworthinessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+    CreditworthinessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        data:
+          type: object
+          properties:
+            eligible_amount:
+              type: number
+            affordability:
+              type: object
+            risk_bands:
+              type: object
+    CreditworthinessRequest:
+      type: object
+      properties:
+        principal:
+          type: number
+          description: Requested loan principal to evaluate affordability against.
+        interest_rate:
+          type: number
+        term:
+          type: integer
+          description: Loan term in months.
+        run_credit_check:
+          type: boolean
+  parameters:
+    AccountId:
+      name: id
+      in: path
+      required: true
+      description: The permanent account id returned by the exchange-token endpoint.
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: The `mono-sec-key` is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    monoSecKey:
+      type: apiKey
+      in: header
+      name: mono-sec-key
+      description: Secret key for the application, found in the Mono dashboard. Sent on every server-to-server request in the `mono-sec-key` header. Use test keys in the sandbox and live keys in production.

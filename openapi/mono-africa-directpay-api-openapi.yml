@@ -1,0 +1,199 @@
+openapi: 3.0.3
+info:
+  title: Mono Connect DirectPay API
+  description: 'A grounded subset of the Mono open banking API for Africa. Mono lets businesses link customer bank accounts and read financial data, assess creditworthiness, collect direct bank payments (DirectPay), and verify identity (Lookup). Server-to-server requests authenticate with a secret key sent in the `mono-sec-key` header. Account linking is completed by the customer through the hosted Mono Connect widget; the widget returns a short-lived authorization code that is exchanged for a permanent account id used on all financial-data calls.
+
+
+    Endpoint paths and methods here are grounded in the public Mono documentation at docs.mono.co (base host `https://api.withmono.com`, most endpoints under `/v2`; the account-number and Mashup Lookup endpoints are under `/v3`). Request and response bodies are modeled representatively - treat field-level schemas as illustrative and confirm exact payloads against the live reference before relying on them.'
+  version: '2.0'
+  contact:
+    name: Mono
+    url: https://mono.co
+  x-provenance: Endpoint paths/methods grounded in docs.mono.co (2026-07-12). Request/response schemas are modeled and should be reconciled against the live API reference.
+servers:
+- url: https://api.withmono.com
+  description: Mono production API host
+security:
+- monoSecKey: []
+tags:
+- name: DirectPay
+  description: Direct bank payment collection.
+paths:
+  /v2/payments/initiate:
+    post:
+      operationId: initiatePayment
+      tags:
+      - DirectPay
+      summary: Initiate payment
+      description: Initiates a one-time DirectPay debit. Returns a payment reference and a widget URL (`mono_url`) the customer uses to complete the bank payment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentInitiateRequest'
+      responses:
+        '200':
+          description: A payment was initiated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInitiateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/payments/verify/{reference}:
+    parameters:
+    - name: reference
+      in: path
+      required: true
+      description: The unique payment reference passed when initiating the payment.
+      schema:
+        type: string
+    get:
+      operationId: verifyPayment
+      tags:
+      - DirectPay
+      summary: Verify payment status
+      description: Verifies the status of a DirectPay payment by its reference. Give value only after this endpoint reports a successful status.
+      responses:
+        '200':
+          description: Payment status and customer information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v2/payments:
+    get:
+      operationId: getPayments
+      tags:
+      - DirectPay
+      summary: Fetch all payments
+      description: Retrieves all DirectPay payments for your application.
+      responses:
+        '200':
+          description: A list of payments.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  schemas:
+    PaymentInitiateRequest:
+      type: object
+      required:
+      - amount
+      - type
+      - reference
+      properties:
+        amount:
+          type: number
+          description: Payment amount in the currency's minor unit.
+        type:
+          type: string
+          example: onetime-debit
+        method:
+          type: string
+          enum:
+          - account
+          - transfer
+          - whatsapp
+        description:
+          type: string
+        reference:
+          type: string
+          description: Unique payment reference used to verify the payment later.
+        redirect_url:
+          type: string
+        customer:
+          type: object
+          properties:
+            email:
+              type: string
+            phone:
+              type: string
+            name:
+              type: string
+        meta:
+          type: object
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+    PaymentStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            amount:
+              type: number
+            currency:
+              type: string
+            reference:
+              type: string
+            type:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+            customer:
+              type: object
+    PaymentInitiateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            mono_url:
+              type: string
+            type:
+              type: string
+            amount:
+              type: number
+            reference:
+              type: string
+  responses:
+    Unauthorized:
+      description: The `mono-sec-key` is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    monoSecKey:
+      type: apiKey
+      in: header
+      name: mono-sec-key
+      description: Secret key for the application, found in the Mono dashboard. Sent on every server-to-server request in the `mono-sec-key` header. Use test keys in the sandbox and live keys in production.

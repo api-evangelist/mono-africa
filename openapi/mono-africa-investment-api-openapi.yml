@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: Mono Connect Investment API
+  description: 'A grounded subset of the Mono open banking API for Africa. Mono lets businesses link customer bank accounts and read financial data, assess creditworthiness, collect direct bank payments (DirectPay), and verify identity (Lookup). Server-to-server requests authenticate with a secret key sent in the `mono-sec-key` header. Account linking is completed by the customer through the hosted Mono Connect widget; the widget returns a short-lived authorization code that is exchanged for a permanent account id used on all financial-data calls.
+
+
+    Endpoint paths and methods here are grounded in the public Mono documentation at docs.mono.co (base host `https://api.withmono.com`, most endpoints under `/v2`; the account-number and Mashup Lookup endpoints are under `/v3`). Request and response bodies are modeled representatively - treat field-level schemas as illustrative and confirm exact payloads against the live reference before relying on them.'
+  version: '2.0'
+  contact:
+    name: Mono
+    url: https://mono.co
+  x-provenance: Endpoint paths/methods grounded in docs.mono.co (2026-07-12). Request/response schemas are modeled and should be reconciled against the live API reference.
+servers:
+- url: https://api.withmono.com
+  description: Mono production API host
+security:
+- monoSecKey: []
+tags:
+- name: Investment
+  description: Investment holdings for a linked account.
+paths:
+  /v2/accounts/{id}/assets:
+    parameters:
+    - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getAssets
+      tags:
+      - Investment
+      summary: Assets
+      description: Retrieves investment assets/holdings for a linked account.
+      responses:
+        '200':
+          description: Investment assets.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Asset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}/earnings:
+    parameters:
+    - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getEarnings
+      tags:
+      - Investment
+      summary: Earnings
+      description: Retrieves investment earnings/returns for a linked account.
+      responses:
+        '200':
+          description: Investment earnings.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  schemas:
+    Asset:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        cost:
+          type: number
+        return:
+          type: number
+        quantity:
+          type: number
+        currency:
+          type: string
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+  parameters:
+    AccountId:
+      name: id
+      in: path
+      required: true
+      description: The permanent account id returned by the exchange-token endpoint.
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: The `mono-sec-key` is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    monoSecKey:
+      type: apiKey
+      in: header
+      name: mono-sec-key
+      description: Secret key for the application, found in the Mono dashboard. Sent on every server-to-server request in the `mono-sec-key` header. Use test keys in the sandbox and live keys in production.
