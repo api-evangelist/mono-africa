@@ -1,0 +1,880 @@
+openapi: 3.0.3
+info:
+  title: Mono API
+  description: >-
+    A grounded subset of the Mono open banking API for Africa. Mono lets
+    businesses link customer bank accounts and read financial data, assess
+    creditworthiness, collect direct bank payments (DirectPay), and verify
+    identity (Lookup). Server-to-server requests authenticate with a secret key
+    sent in the `mono-sec-key` header. Account linking is completed by the
+    customer through the hosted Mono Connect widget; the widget returns a
+    short-lived authorization code that is exchanged for a permanent account id
+    used on all financial-data calls.
+
+
+    Endpoint paths and methods here are grounded in the public Mono
+    documentation at docs.mono.co (base host `https://api.withmono.com`, most
+    endpoints under `/v2`; the account-number and Mashup Lookup endpoints are
+    under `/v3`). Request and response bodies are modeled representatively -
+    treat field-level schemas as illustrative and confirm exact payloads
+    against the live reference before relying on them.
+  version: '2.0'
+  contact:
+    name: Mono
+    url: https://mono.co
+  x-provenance: >-
+    Endpoint paths/methods grounded in docs.mono.co (2026-07-12). Request/response
+    schemas are modeled and should be reconciled against the live API reference.
+servers:
+  - url: https://api.withmono.com
+    description: Mono production API host
+security:
+  - monoSecKey: []
+tags:
+  - name: Connect
+    description: Account linking authorization and re-authorization.
+  - name: Financial Data
+    description: Read financial data from a linked account.
+  - name: Investment
+    description: Investment holdings for a linked account.
+  - name: Creditworthiness
+    description: Affordability and credit-decisioning analysis.
+  - name: DirectPay
+    description: Direct bank payment collection.
+  - name: Lookup
+    description: Identity and data verification for KYC/KYB.
+paths:
+  /v2/accounts/initiate:
+    post:
+      operationId: initiateAccountLinking
+      tags:
+        - Connect
+      summary: Initiate account linking
+      description: >-
+        Starts an account-linking session for the Mono Connect widget. Returns a
+        session that the customer uses to authorize access to their bank account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateRequest'
+      responses:
+        '200':
+          description: A linking session was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/auth:
+    post:
+      operationId: exchangeToken
+      tags:
+        - Connect
+      summary: Exchange token
+      description: >-
+        Exchanges the authorization code returned by the Connect widget for a
+        permanent account id. Store the returned id to make future financial-data
+        calls for this account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: The authorization code was exchanged for an account id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts:
+    get:
+      operationId: getAccounts
+      tags:
+        - Financial Data
+      summary: Get accounts
+      description: Retrieves the linked accounts associated with your application.
+      responses:
+        '200':
+          description: A list of linked accounts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Account'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getAccountDetails
+      tags:
+        - Financial Data
+      summary: Account details
+      description: Retrieves the details and metadata of a single linked account.
+      responses:
+        '200':
+          description: Account details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v2/accounts/{id}/transactions:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getTransactions
+      tags:
+        - Financial Data
+      summary: Transactions
+      description: >-
+        Retrieves transactions on a linked account. Supports pagination and date
+        filtering. When the `x-real-time` header is enabled, transactions are
+        fetched in real time from the institution.
+      parameters:
+        - name: start
+          in: query
+          description: Start date filter (DD-MM-YYYY).
+          schema:
+            type: string
+        - name: end
+          in: query
+          description: End date filter (DD-MM-YYYY).
+          schema:
+            type: string
+        - name: narration
+          in: query
+          description: Filter transactions by narration text.
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Filter by transaction type (debit or credit).
+          schema:
+            type: string
+            enum:
+              - debit
+              - credit
+        - name: paginate
+          in: query
+          description: Whether to paginate the response.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: A list of transactions.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}/identity:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getIdentity
+      tags:
+        - Financial Data
+      summary: Identity
+      description: Retrieves KYC identity information tied to a linked account.
+      responses:
+        '200':
+          description: Identity information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}/balance:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getBalance
+      tags:
+        - Financial Data
+      summary: Account balance
+      description: Retrieves the real-time balance of a linked account.
+      responses:
+        '200':
+          description: Account balance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}/income:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getIncome
+      tags:
+        - Financial Data
+      summary: Income
+      description: >-
+        Retrieves income analysis for a linked account - estimated regular income,
+        employer, and confidence signals derived from transaction history.
+      responses:
+        '200':
+          description: Income analysis.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Income'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}/statement:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getStatement
+      tags:
+        - Financial Data
+      summary: Bank statement
+      description: >-
+        Retrieves a bank statement for a linked account. Set `output=pdf` to
+        request a PDF; the response then returns a job/path that is polled for the
+        generated document.
+      parameters:
+        - name: period
+          in: query
+          description: Statement period, e.g. `last6months` or `last12months`.
+          schema:
+            type: string
+        - name: output
+          in: query
+          description: Response format - `json` (default) or `pdf`.
+          schema:
+            type: string
+            enum:
+              - json
+              - pdf
+      responses:
+        '200':
+          description: Statement data (or a PDF generation reference).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Statement'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}/unlink:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    post:
+      operationId: unlinkAccount
+      tags:
+        - Financial Data
+      summary: Unlink account
+      description: Unlinks a previously linked account, revoking further data access.
+      responses:
+        '200':
+          description: The account was unlinked.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}/creditworthiness:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    post:
+      operationId: assessCreditworthiness
+      tags:
+        - Creditworthiness
+      summary: Creditworthiness
+      description: >-
+        Assesses a customer's repayment capacity from their linked-account
+        financial history and returns an affordability/creditworthiness analysis.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditworthinessRequest'
+      responses:
+        '200':
+          description: Creditworthiness analysis.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditworthinessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}/assets:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getAssets
+      tags:
+        - Investment
+      summary: Assets
+      description: Retrieves investment assets/holdings for a linked account.
+      responses:
+        '200':
+          description: Investment assets.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Asset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/accounts/{id}/earnings:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getEarnings
+      tags:
+        - Investment
+      summary: Earnings
+      description: Retrieves investment earnings/returns for a linked account.
+      responses:
+        '200':
+          description: Investment earnings.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/payments/initiate:
+    post:
+      operationId: initiatePayment
+      tags:
+        - DirectPay
+      summary: Initiate payment
+      description: >-
+        Initiates a one-time DirectPay debit. Returns a payment reference and a
+        widget URL (`mono_url`) the customer uses to complete the bank payment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentInitiateRequest'
+      responses:
+        '200':
+          description: A payment was initiated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInitiateResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/payments/verify/{reference}:
+    parameters:
+      - name: reference
+        in: path
+        required: true
+        description: The unique payment reference passed when initiating the payment.
+        schema:
+          type: string
+    get:
+      operationId: verifyPayment
+      tags:
+        - DirectPay
+      summary: Verify payment status
+      description: >-
+        Verifies the status of a DirectPay payment by its reference. Give value
+        only after this endpoint reports a successful status.
+      responses:
+        '200':
+          description: Payment status and customer information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v2/payments:
+    get:
+      operationId: getPayments
+      tags:
+        - DirectPay
+      summary: Fetch all payments
+      description: Retrieves all DirectPay payments for your application.
+      responses:
+        '200':
+          description: A list of payments.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/lookup/bvn/initiate:
+    post:
+      operationId: lookupBvnInitiate
+      tags:
+        - Lookup
+      summary: Initiate BVN lookup
+      description: >-
+        Initiates a consent-based BVN verification. The customer consents to the
+        lookup (for example via an OTP/iGree flow) before verified details are
+        returned. Modeled path - confirm the exact BVN sub-path against the live
+        reference.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BvnInitiateRequest'
+      responses:
+        '200':
+          description: A BVN verification session was initiated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v3/lookup/account-number:
+    post:
+      operationId: lookupAccountNumber
+      tags:
+        - Lookup
+      summary: Account-number lookup
+      description: >-
+        Verifies ownership of a bank account by account number and bank code,
+        returning the resolved account name. Served under the `/v3/lookup` path.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountNumberLookupRequest'
+      responses:
+        '200':
+          description: Resolved account holder information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v3/lookup/mashup:
+    post:
+      operationId: lookupMashup
+      tags:
+        - Lookup
+      summary: Mashup lookup
+      description: >-
+        Cross-checks a customer's submitted identity against multiple sources in a
+        single call (the Mashup Lookup). Served under the `/v3/lookup` path.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Aggregated identity verification result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  securitySchemes:
+    monoSecKey:
+      type: apiKey
+      in: header
+      name: mono-sec-key
+      description: >-
+        Secret key for the application, found in the Mono dashboard. Sent on every
+        server-to-server request in the `mono-sec-key` header. Use test keys in the
+        sandbox and live keys in production.
+  parameters:
+    AccountId:
+      name: id
+      in: path
+      required: true
+      description: The permanent account id returned by the exchange-token endpoint.
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: The `mono-sec-key` is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+    InitiateRequest:
+      type: object
+      properties:
+        customer:
+          type: object
+          description: Customer details for the linking session.
+        meta:
+          type: object
+          description: Arbitrary metadata echoed back on the linked account.
+        scope:
+          type: string
+          description: The linking scope, e.g. `auth`.
+        redirect_url:
+          type: string
+    InitiateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            mono_url:
+              type: string
+            customer:
+              type: string
+            meta:
+              type: object
+    AuthRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: The authorization code returned by the Connect widget.
+    AuthResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The permanent account id for the linked account.
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        currency:
+          type: string
+        type:
+          type: string
+        account_number:
+          type: string
+        balance:
+          type: number
+        bvn:
+          type: string
+        institution:
+          type: object
+          properties:
+            name:
+              type: string
+            bank_code:
+              type: string
+            type:
+              type: string
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+        narration:
+          type: string
+        amount:
+          type: integer
+          description: Amount in the account's minor currency unit (kobo for NGN).
+        type:
+          type: string
+          enum:
+            - debit
+            - credit
+        balance:
+          type: integer
+        date:
+          type: string
+          format: date-time
+        category:
+          type: string
+    Identity:
+      type: object
+      properties:
+        full_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        gender:
+          type: string
+        dob:
+          type: string
+        bvn:
+          type: string
+        marital_status:
+          type: string
+        address_line1:
+          type: string
+    Balance:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        account_number:
+          type: string
+        balance:
+          type: integer
+        currency:
+          type: string
+    Income:
+      type: object
+      properties:
+        type:
+          type: string
+        amount:
+          type: number
+        employer:
+          type: string
+        employment_status:
+          type: string
+        income_confidence:
+          type: string
+        last_income_date:
+          type: string
+    Statement:
+      type: object
+      properties:
+        meta:
+          type: object
+          properties:
+            count:
+              type: integer
+        account:
+          $ref: '#/components/schemas/Account'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        path:
+          type: string
+          description: When output=pdf, the path/URL to poll for the generated PDF.
+    Asset:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        cost:
+          type: number
+        return:
+          type: number
+        quantity:
+          type: number
+        currency:
+          type: string
+    CreditworthinessRequest:
+      type: object
+      properties:
+        principal:
+          type: number
+          description: Requested loan principal to evaluate affordability against.
+        interest_rate:
+          type: number
+        term:
+          type: integer
+          description: Loan term in months.
+        run_credit_check:
+          type: boolean
+    CreditworthinessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        data:
+          type: object
+          properties:
+            eligible_amount:
+              type: number
+            affordability:
+              type: object
+            risk_bands:
+              type: object
+    PaymentInitiateRequest:
+      type: object
+      required:
+        - amount
+        - type
+        - reference
+      properties:
+        amount:
+          type: number
+          description: Payment amount in the currency's minor unit.
+        type:
+          type: string
+          example: onetime-debit
+        method:
+          type: string
+          enum:
+            - account
+            - transfer
+            - whatsapp
+        description:
+          type: string
+        reference:
+          type: string
+          description: Unique payment reference used to verify the payment later.
+        redirect_url:
+          type: string
+        customer:
+          type: object
+          properties:
+            email:
+              type: string
+            phone:
+              type: string
+            name:
+              type: string
+        meta:
+          type: object
+    PaymentInitiateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            mono_url:
+              type: string
+            type:
+              type: string
+            amount:
+              type: number
+            reference:
+              type: string
+    PaymentStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            amount:
+              type: number
+            currency:
+              type: string
+            reference:
+              type: string
+            type:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+            customer:
+              type: object
+    BvnInitiateRequest:
+      type: object
+      required:
+        - bvn
+        - scope
+      properties:
+        bvn:
+          type: string
+          description: The Bank Verification Number to verify.
+        scope:
+          type: string
+          description: The consent scope, e.g. `identity`.
+    AccountNumberLookupRequest:
+      type: object
+      required:
+        - nip_code
+        - account_number
+      properties:
+        nip_code:
+          type: string
+          description: The bank/institution NIP code.
+        account_number:
+          type: string

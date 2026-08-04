@@ -1,0 +1,24 @@
+{
+  "provider": "mono-africa",
+  "sources": [
+    "mono-africa-connect-api-openapi.yml",
+    "mono-africa-creditworthiness-api-openapi.yml",
+    "mono-africa-directpay-api-openapi.yml",
+    "mono-africa-financial-data-api-openapi.yml",
+    "mono-africa-investment-api-openapi.yml",
+    "mono-africa-lookup-api-openapi.yml"
+  ],
+  "outputs": [
+    "mono-africa-connect-api-openapi.yml",
+    "mono-africa-creditworthiness-api-openapi.yml",
+    "mono-africa-directpay-api-openapi.yml",
+    "mono-africa-financial-data-api-openapi.yml",
+    "mono-africa-investment-api-openapi.yml",
+    "mono-africa-lookup-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
