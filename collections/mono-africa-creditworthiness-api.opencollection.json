@@ -1,0 +1,49 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mono Connect Creditworthiness API",
+    "version": "2.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "mono-sec-key",
+      "value": "{{mono-sec-key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Creditworthiness",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Creditworthiness",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/accounts/:id/creditworthiness",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Assesses a customer's repayment capacity from their linked-account financial history and returns an affordability/creditworthiness analysis."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

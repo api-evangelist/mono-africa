@@ -1,0 +1,71 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mono Connect Lookup API",
+    "version": "2.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "mono-sec-key",
+      "value": "{{mono-sec-key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Lookup",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Initiate BVN lookup",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/lookup/bvn/initiate",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Initiates a consent-based BVN verification. The customer consents to the lookup (for example via an OTP/iGree flow) before verified details are returned. Modeled path - confirm the exact BVN sub-path against the live reference."
+        },
+        {
+          "info": {
+            "name": "Account-number lookup",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v3/lookup/account-number",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Verifies ownership of a bank account by account number and bank code, returning the resolved account name. Served under the `/v3/lookup` path."
+        },
+        {
+          "info": {
+            "name": "Mashup lookup",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v3/lookup/mashup",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Cross-checks a customer's submitted identity against multiple sources in a single call (the Mashup Lookup). Served under the `/v3/lookup` path."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

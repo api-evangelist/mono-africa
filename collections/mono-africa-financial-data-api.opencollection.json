@@ -1,0 +1,212 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mono Connect Financial Data API",
+    "version": "2.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "mono-sec-key",
+      "value": "{{mono-sec-key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Financial Data",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get accounts",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts"
+          },
+          "docs": "Retrieves the linked accounts associated with your application."
+        },
+        {
+          "info": {
+            "name": "Account details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              }
+            ]
+          },
+          "docs": "Retrieves the details and metadata of a single linked account."
+        },
+        {
+          "info": {
+            "name": "Transactions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/transactions",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              },
+              {
+                "name": "start",
+                "value": "",
+                "type": "query",
+                "description": "Start date filter (DD-MM-YYYY)."
+              },
+              {
+                "name": "end",
+                "value": "",
+                "type": "query",
+                "description": "End date filter (DD-MM-YYYY)."
+              },
+              {
+                "name": "narration",
+                "value": "",
+                "type": "query",
+                "description": "Filter transactions by narration text."
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by transaction type (debit or credit)."
+              },
+              {
+                "name": "paginate",
+                "value": "",
+                "type": "query",
+                "description": "Whether to paginate the response."
+              }
+            ]
+          },
+          "docs": "Retrieves transactions on a linked account. Supports pagination and date filtering. When the `x-real-time` header is enabled, transactions are fetched in real time from the institution."
+        },
+        {
+          "info": {
+            "name": "Identity",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/identity",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              }
+            ]
+          },
+          "docs": "Retrieves KYC identity information tied to a linked account."
+        },
+        {
+          "info": {
+            "name": "Account balance",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/balance",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              }
+            ]
+          },
+          "docs": "Retrieves the real-time balance of a linked account."
+        },
+        {
+          "info": {
+            "name": "Income",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/income",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              }
+            ]
+          },
+          "docs": "Retrieves income analysis for a linked account - estimated regular income, employer, and confidence signals derived from transaction history."
+        },
+        {
+          "info": {
+            "name": "Bank statement",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/statement",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              },
+              {
+                "name": "period",
+                "value": "",
+                "type": "query",
+                "description": "Statement period, e.g. `last6months` or `last12months`."
+              },
+              {
+                "name": "output",
+                "value": "",
+                "type": "query",
+                "description": "Response format - `json` (default) or `pdf`."
+              }
+            ]
+          },
+          "docs": "Retrieves a bank statement for a linked account. Set `output=pdf` to request a PDF; the response then returns a job/path that is polled for the generated document."
+        },
+        {
+          "info": {
+            "name": "Unlink account",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/accounts/:id/unlink",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              }
+            ]
+          },
+          "docs": "Unlinks a previously linked account, revoking further data access."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,537 @@
+{
+  "item": [
+    {
+      "id": "82cf5756-d266-4eaa-ae11-0a1d463cdd24",
+      "name": "DirectPay",
+      "description": {
+        "content": "Direct bank payment collection.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "d06d39a8-442e-444d-a9c3-c25cfbd69641",
+          "name": "Initiate payment",
+          "request": {
+            "name": "Initiate payment",
+            "description": {
+              "content": "Initiates a one-time DirectPay debit. Returns a payment reference and a widget URL (`mono_url`) the customer uses to complete the bank payment.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "payments",
+                "initiate"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"<number>\",\n  \"type\": \"<string>\",\n  \"reference\": \"<string>\",\n  \"method\": \"<string>\",\n  \"description\": \"<string>\",\n  \"redirect_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"<string>\",\n    \"phone\": \"<string>\",\n    \"name\": \"<string>\"\n  },\n  \"meta\": \"<object>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "72a2a7aa-a46e-436a-81f7-dd1cd6325fa6",
+              "name": "A payment was initiated.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payments",
+                    "initiate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "mono-sec-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": \"<number>\",\n  \"type\": \"onetime-debit\",\n  \"reference\": \"<string>\",\n  \"method\": \"<string>\",\n  \"description\": \"<string>\",\n  \"redirect_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"<string>\",\n    \"phone\": \"<string>\",\n    \"name\": \"<string>\"\n  },\n  \"meta\": \"<object>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"string\",\n  \"message\": \"string\",\n  \"data\": {\n    \"id\": \"string\",\n    \"mono_url\": \"string\",\n    \"type\": \"string\",\n    \"amount\": 7028.97331052401,\n    \"reference\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "489d7ae4-c680-45df-9d47-00343575edb0",
+              "name": "The `mono-sec-key` is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payments",
+                    "initiate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "mono-sec-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": \"<number>\",\n  \"type\": \"onetime-debit\",\n  \"reference\": \"<string>\",\n  \"method\": \"<string>\",\n  \"description\": \"<string>\",\n  \"redirect_url\": \"<string>\",\n  \"customer\": {\n    \"email\": \"<string>\",\n    \"phone\": \"<string>\",\n    \"name\": \"<string>\"\n  },\n  \"meta\": \"<object>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"string\",\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "473fd593-9603-4919-a3d4-dad5b4d81b72",
+          "name": "Verify payment status",
+          "request": {
+            "name": "Verify payment status",
+            "description": {
+              "content": "Verifies the status of a DirectPay payment by its reference. Give value only after this endpoint reports a successful status.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "payments",
+                "verify",
+                ":reference"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "reference",
+                  "description": "(Required) The unique payment reference passed when initiating the payment."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "06fe6d7e-3326-46c1-b90a-b410ede88ca6",
+              "name": "Payment status and customer information.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payments",
+                    "verify",
+                    ":reference"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "reference",
+                      "description": "(Required) The unique payment reference passed when initiating the payment."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "mono-sec-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"string\",\n  \"message\": \"string\",\n  \"data\": {\n    \"id\": \"string\",\n    \"amount\": 1765.3598763888078,\n    \"currency\": \"string\",\n    \"reference\": \"string\",\n    \"type\": \"string\",\n    \"created_at\": \"1999-09-30T10:03:35.475Z\",\n    \"customer\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "312933ef-fcd1-4bf2-bae4-fb72908b13eb",
+              "name": "The `mono-sec-key` is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payments",
+                    "verify",
+                    ":reference"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "reference",
+                      "description": "(Required) The unique payment reference passed when initiating the payment."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "mono-sec-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"string\",\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "14526edb-ed2a-41da-be11-b3d0c3a74e33",
+              "name": "The requested resource was not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payments",
+                    "verify",
+                    ":reference"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "reference",
+                      "description": "(Required) The unique payment reference passed when initiating the payment."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "mono-sec-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"string\",\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1020bdaa-d3ad-4d69-8198-163668a4a77b",
+          "name": "Fetch all payments",
+          "request": {
+            "name": "Fetch all payments",
+            "description": {
+              "content": "Retrieves all DirectPay payments for your application.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "payments"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "1ab720d5-7332-47d3-bf70-48c5f28db57e",
+              "name": "A list of payments.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payments"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "mono-sec-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"status\": \"string\",\n      \"message\": \"string\",\n      \"data\": {\n        \"id\": \"string\",\n        \"amount\": 572.3424445884506,\n        \"currency\": \"string\",\n        \"reference\": \"string\",\n        \"type\": \"string\",\n        \"created_at\": \"1983-04-17T11:51:55.501Z\",\n        \"customer\": {}\n      }\n    },\n    {\n      \"status\": \"string\",\n      \"message\": \"string\",\n      \"data\": {\n        \"id\": \"string\",\n        \"amount\": 8459.908570364594,\n        \"currency\": \"string\",\n        \"reference\": \"string\",\n        \"type\": \"string\",\n        \"created_at\": \"1999-12-30T10:22:35.543Z\",\n        \"customer\": {}\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ad560b1f-b748-4a60-a580-f1cb727e0350",
+              "name": "The `mono-sec-key` is missing or invalid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "payments"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "mono-sec-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"string\",\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.withmono.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "mono-sec-key"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}"
+      },
+      {
+        "key": "in",
+        "value": "header"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "bb1a6461-fcce-47d0-94bd-4d08329e9c81",
+    "name": "Mono Connect DirectPay API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "A grounded subset of the Mono open banking API for Africa. Mono lets businesses link customer bank accounts and read financial data, assess creditworthiness, collect direct bank payments (DirectPay), and verify identity (Lookup). Server-to-server requests authenticate with a secret key sent in the `mono-sec-key` header. Account linking is completed by the customer through the hosted Mono Connect widget; the widget returns a short-lived authorization code that is exchanged for a permanent account id used on all financial-data calls.\n\nEndpoint paths and methods here are grounded in the public Mono documentation at docs.mono.co (base host `https://api.withmono.com`, most endpoints under `/v2`; the account-number and Mashup Lookup endpoints are under `/v3`). Request and response bodies are modeled representatively - treat field-level schemas as illustrative and confirm exact payloads against the live reference before relying on them.\n\nContact Support:\n Name: Mono",
+      "type": "text/plain"
+    }
+  }
+}

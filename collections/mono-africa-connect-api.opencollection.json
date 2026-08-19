@@ -1,0 +1,56 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mono Connect API",
+    "version": "2.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "mono-sec-key",
+      "value": "{{mono-sec-key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Connect",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Initiate account linking",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/accounts/initiate",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Starts an account-linking session for the Mono Connect widget. Returns a session that the customer uses to authorize access to their bank account."
+        },
+        {
+          "info": {
+            "name": "Exchange token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/accounts/auth",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Exchanges the authorization code returned by the Connect widget for a permanent account id. Store the returned id to make future financial-data calls for this account."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

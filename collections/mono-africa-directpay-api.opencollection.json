@@ -1,0 +1,71 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mono Connect DirectPay API",
+    "version": "2.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "mono-sec-key",
+      "value": "{{mono-sec-key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "DirectPay",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Initiate payment",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.withmono.com/v2/payments/initiate",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Initiates a one-time DirectPay debit. Returns a payment reference and a widget URL (`mono_url`) the customer uses to complete the bank payment."
+        },
+        {
+          "info": {
+            "name": "Verify payment status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/payments/verify/:reference",
+            "params": [
+              {
+                "name": "reference",
+                "value": "",
+                "type": "path",
+                "description": "The unique payment reference passed when initiating the payment."
+              }
+            ]
+          },
+          "docs": "Verifies the status of a DirectPay payment by its reference. Give value only after this endpoint reports a successful status."
+        },
+        {
+          "info": {
+            "name": "Fetch all payments",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/payments"
+          },
+          "docs": "Retrieves all DirectPay payments for your application."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

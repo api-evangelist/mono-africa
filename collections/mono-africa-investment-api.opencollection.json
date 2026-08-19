@@ -1,0 +1,64 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mono Connect Investment API",
+    "version": "2.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "mono-sec-key",
+      "value": "{{mono-sec-key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Investment",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Assets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/assets",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              }
+            ]
+          },
+          "docs": "Retrieves investment assets/holdings for a linked account."
+        },
+        {
+          "info": {
+            "name": "Earnings",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.withmono.com/v2/accounts/:id/earnings",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The permanent account id returned by the exchange-token endpoint."
+              }
+            ]
+          },
+          "docs": "Retrieves investment earnings/returns for a linked account."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
