@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
   title: Mono Connect Financial Data API
   description: 'A grounded subset of the Mono open banking API for Africa. Mono lets businesses link customer bank accounts and read financial data, assess creditworthiness, collect direct bank payments (DirectPay), and verify identity (Lookup). Server-to-server requests authenticate with a secret key sent in the `mono-sec-key` header. Account linking is completed by the customer through the hosted Mono Connect widget; the widget returns a short-lived authorization code that is exchanged for a permanent account id used on all financial-data calls.
@@ -221,28 +221,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
 components:
   schemas:
-    Transaction:
-      type: object
-      properties:
-        id:
-          type: string
-        narration:
-          type: string
-        amount:
-          type: integer
-          description: Amount in the account's minor currency unit (kobo for NGN).
-        type:
-          type: string
-          enum:
-          - debit
-          - credit
-        balance:
-          type: integer
-        date:
-          type: string
-          format: date-time
-        category:
-          type: string
     Error:
       type: object
       properties:
@@ -250,38 +228,38 @@ components:
           type: string
         message:
           type: string
-    Income:
+    Balance:
       type: object
       properties:
-        type:
+        id:
           type: string
-        amount:
-          type: number
-        employer:
+        name:
           type: string
-        employment_status:
+        account_number:
           type: string
-        income_confidence:
+        balance:
+          type: integer
+        currency:
           type: string
-        last_income_date:
-          type: string
-    Statement:
+    Identity:
       type: object
       properties:
-        meta:
-          type: object
-          properties:
-            count:
-              type: integer
-        account:
-          $ref: '#/components/schemas/Account'
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Transaction'
-        path:
+        full_name:
           type: string
-          description: When output=pdf, the path/URL to poll for the generated PDF.
+        email:
+          type: string
+        phone:
+          type: string
+        gender:
+          type: string
+        dob:
+          type: string
+        bvn:
+          type: string
+        marital_status:
+          type: string
+        address_line1:
+          type: string
     Account:
       type: object
       properties:
@@ -308,38 +286,73 @@ components:
               type: string
             type:
               type: string
-    Identity:
+    Statement:
       type: object
       properties:
-        full_name:
+        meta:
+          type: object
+          properties:
+            count:
+              type: integer
+        account:
+          $ref: '#/components/schemas/Account'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        path:
           type: string
-        email:
+          description: When output=pdf, the path/URL to poll for the generated PDF.
+    Income:
+      type: object
+      properties:
+        type:
           type: string
-        phone:
+        amount:
+          type: number
+        employer:
           type: string
-        gender:
+        employment_status:
           type: string
-        dob:
+        income_confidence:
           type: string
-        bvn:
+        last_income_date:
           type: string
-        marital_status:
-          type: string
-        address_line1:
-          type: string
-    Balance:
+    Transaction:
       type: object
       properties:
         id:
           type: string
-        name:
+        narration:
           type: string
-        account_number:
+        amount:
+          type: integer
+          description: Amount in the account's minor currency unit (kobo for NGN).
+        type:
           type: string
+          enum:
+          - debit
+          - credit
         balance:
           type: integer
-        currency:
+        date:
           type: string
+          format: date-time
+        category:
+          type: string
+  responses:
+    NotFound:
+      description: The requested resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: The `mono-sec-key` is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
     AccountId:
       name: id
@@ -348,19 +361,6 @@ components:
       description: The permanent account id returned by the exchange-token endpoint.
       schema:
         type: string
-  responses:
-    Unauthorized:
-      description: The `mono-sec-key` is missing or invalid.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: The requested resource was not found.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   securitySchemes:
     monoSecKey:
       type: apiKey

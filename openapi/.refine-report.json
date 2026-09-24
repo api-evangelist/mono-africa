@@ -19,6 +19,14 @@
   "archived": [],
   "errors": [],
   "warnings": [],
-  "notes": [],
+  "notes": [
+    "mono-africa-connect-api-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "mono-africa-creditworthiness-api-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "mono-africa-directpay-api-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "mono-africa-financial-data-api-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "mono-africa-investment-api-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "mono-africa-lookup-api-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
   "skipped": []
 }

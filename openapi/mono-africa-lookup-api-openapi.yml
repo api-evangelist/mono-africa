@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
   title: Mono Connect Lookup API
   description: 'A grounded subset of the Mono open banking API for Africa. Mono lets businesses link customer bank accounts and read financial data, assess creditworthiness, collect direct bank payments (DirectPay), and verify identity (Lookup). Server-to-server requests authenticate with a secret key sent in the `mono-sec-key` header. Account linking is completed by the customer through the hosted Mono Connect widget; the widget returns a short-lived authorization code that is exchanged for a permanent account id used on all financial-data calls.
@@ -104,6 +104,13 @@ paths:
           $ref: '#/components/responses/Unauthorized'
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
     BvnInitiateRequest:
       type: object
       required:
@@ -126,13 +133,6 @@ components:
           type: string
           description: The bank/institution NIP code.
         account_number:
-          type: string
-    Error:
-      type: object
-      properties:
-        status:
-          type: string
-        message:
           type: string
   responses:
     Unauthorized:

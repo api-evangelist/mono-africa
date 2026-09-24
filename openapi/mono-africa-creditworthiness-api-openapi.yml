@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
   title: Mono Connect Creditworthiness API
   description: 'A grounded subset of the Mono open banking API for Africa. Mono lets businesses link customer bank accounts and read financial data, assess creditworthiness, collect direct bank payments (DirectPay), and verify identity (Lookup). Server-to-server requests authenticate with a secret key sent in the `mono-sec-key` header. Account linking is completed by the customer through the hosted Mono Connect widget; the widget returns a short-lived authorization code that is exchanged for a permanent account id used on all financial-data calls.
@@ -52,6 +52,19 @@ components:
           type: string
         message:
           type: string
+    CreditworthinessRequest:
+      type: object
+      properties:
+        principal:
+          type: number
+          description: Requested loan principal to evaluate affordability against.
+        interest_rate:
+          type: number
+        term:
+          type: integer
+          description: Loan term in months.
+        run_credit_check:
+          type: boolean
     CreditworthinessResponse:
       type: object
       properties:
@@ -66,19 +79,6 @@ components:
               type: object
             risk_bands:
               type: object
-    CreditworthinessRequest:
-      type: object
-      properties:
-        principal:
-          type: number
-          description: Requested loan principal to evaluate affordability against.
-        interest_rate:
-          type: number
-        term:
-          type: integer
-          description: Loan term in months.
-        run_credit_check:
-          type: boolean
   parameters:
     AccountId:
       name: id

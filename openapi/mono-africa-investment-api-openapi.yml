@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
   title: Mono Connect Investment API
   description: 'A grounded subset of the Mono open banking API for Africa. Mono lets businesses link customer bank accounts and read financial data, assess creditworthiness, collect direct bank payments (DirectPay), and verify identity (Lookup). Server-to-server requests authenticate with a secret key sent in the `mono-sec-key` header. Account linking is completed by the customer through the hosted Mono Connect widget; the widget returns a short-lived authorization code that is exchanged for a permanent account id used on all financial-data calls.
@@ -66,7 +66,22 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 components:
+  parameters:
+    AccountId:
+      name: id
+      in: path
+      required: true
+      description: The permanent account id returned by the exchange-token endpoint.
+      schema:
+        type: string
   schemas:
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
     Asset:
       type: object
       properties:
@@ -82,21 +97,6 @@ components:
           type: number
         currency:
           type: string
-    Error:
-      type: object
-      properties:
-        status:
-          type: string
-        message:
-          type: string
-  parameters:
-    AccountId:
-      name: id
-      in: path
-      required: true
-      description: The permanent account id returned by the exchange-token endpoint.
-      schema:
-        type: string
   responses:
     Unauthorized:
       description: The `mono-sec-key` is missing or invalid.
